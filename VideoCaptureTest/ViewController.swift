@@ -6,10 +6,11 @@
 //  Copyright © 2017 com.peteredmonston. All rights reserved.
 //
 
-import UIKit
 import AVFoundation
 import CoreImage
+import Metal
 import OpenGLES
+import UIKit
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     @IBOutlet weak var previewView: PreviewView!
@@ -29,6 +30,11 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         }
     }
     
+    private var defaultDevice: AVCaptureDevice? {
+        let session = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .builtInDualCamera], mediaType: .video, position: .back)
+        return session.devices.first
+    }
+    
     private lazy var session: AVCaptureSession = {
         let session = AVCaptureSession()
         session.sessionPreset = .photo
@@ -37,18 +43,21 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     private var setupResult = SessionSetupResult.success
     
-    private var defaultDevice: AVCaptureDevice? {
-        let session = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .builtInDualCamera], mediaType: .video, position: .back)
-        return session.devices.first
-    }
-    
     private let sessionQueue = DispatchQueue(label: "com.peteredmonston.session_queue")
     private let bufferQueue = DispatchQueue(label: "com.peteredmonston.buffer_queue")
     private let renderQueue = DispatchQueue(label: "com.peteredmonston.render_queue")
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        previewView.session = session
+    //    previewView.session = session
+        guard let url = Bundle.main.url(forResource: "default", withExtension: "metallib"),
+            let data = try? Data(contentsOf: url),
+            let kernel = try? CIKernel(functionName: "wide_color_kernel",
+                                       fromMetalLibraryData: data,
+                                       outputPixelFormat: kCIFormatRGBAh) else {
+                fatalError("Unable to get metallib and create kernel")
+        }
+        WideColorFilter.setup(with: kernel)
         requestAuthorizationIfNeeded()
         sessionQueue.async {
             self.setupSession()
@@ -92,6 +101,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             if (session.canAddOutput(output)) {
                 session.addOutput(output)
             }
+            output.connections.first?.videoOrientation = .portrait
             
             let photoOutput = AVCapturePhotoOutput()
             if session.canAddOutput(photoOutput) {
@@ -133,47 +143,28 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         present(alert, animated: true)
     }
     
-    let rosyFilter: CIFilter = {
-        let filter = CIFilter(name: "CIColorMatrix")!// CIFilter(name: "CIColorMatrix")!
-        let greenCoeffs: UnsafePointer<CGFloat> = UnsafePointer([CGFloat(0), CGFloat(0), CGFloat(0), CGFloat(0)])
-        let vector = CIVector(values: greenCoeffs, count: 4)
-        filter.setValue(vector, forKey: "inputGVector")
-        return filter
-    }()
     
+    let wideColorFilter: CIFilter = WideColorFilter()
     let ciContext: CIContext = {
-        let eaglContext = EAGLContext(api: .openGLES2)!
-        let options: [String: Any] = [kCIContextWorkingColorSpace: CGColorSpace(name: CGColorSpace.extendedSRGB)!, kCIContextWorkingFormat: NSNumber(value: kCIFormatRGBAh)]
-        let context = CIContext(eaglContext: eaglContext, options: options)
-        return context
+        let colorSpace = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!
+        let pixelFormat = NSNumber(value: kCIFormatRGBAh)
+        let options: [String: Any] = [kCIContextWorkingColorSpace: colorSpace, kCIContextWorkingFormat: pixelFormat]
+        return CIContext(options: options)
     }()
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         
-        if let iBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
-            let rawImage = CIImage(cvPixelBuffer: iBuffer)
-            rosyFilter.setValue(rawImage, forKey: kCIInputImageKey)
-            if let output = rosyFilter.outputImage {
-                
-                renderQueue.async {
-                    let filteredCGImage = self.ciContext.createCGImage(output,
-                                                                       from: output.extent,
-                                                                       format: kCIFormatRGBAh,
-                                                                       colorSpace: CGColorSpace(name: CGColorSpace.extendedSRGB))
-                    DispatchQueue.main.async {
-                        guard let cgImage = filteredCGImage else { return }
-                        print("got here with out put \(cgImage.colorSpace!)")
-                        let image = UIImage(cgImage: cgImage)
-                        self.miniPreviewView.image = image
-                    }
-                }
+        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        wideColorFilter.setValue(CIImage(cvPixelBuffer: imageBuffer), forKey: kCIInputImageKey)
+        guard let output = wideColorFilter.outputImage else { return }
+        renderQueue.async {
+            guard let filteredCGImage = self.ciContext.createCGImage(output,
+                                                               from: output.extent,
+                                                               format: kCIFormatRGBAh,
+                                                               colorSpace: CGColorSpace(name: CGColorSpace.extendedSRGB)) else { return }
+            DispatchQueue.main.async {
+                self.miniPreviewView.image = UIImage(cgImage: filteredCGImage)
             }
-            if let space = rawImage.colorSpace {
-                print("space: \(space)")
-            }
-            //print("image: \(image)")
-        } else {
-            print("nope")
         }
     }
 }

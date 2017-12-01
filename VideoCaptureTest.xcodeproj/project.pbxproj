@@ -13,6 +13,8 @@
 		D0CFAA6C1FCB49540069A714 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D0CFAA6B1FCB49540069A714 /* Assets.xcassets */; };
 		D0CFAA6F1FCB49540069A714 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D0CFAA6D1FCB49540069A714 /* LaunchScreen.storyboard */; };
 		D0CFAA771FCB4F540069A714 /* PreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0CFAA761FCB4F540069A714 /* PreviewView.swift */; };
+		D0F849861FD0E8890090F10B /* filters.metal in Sources */ = {isa = PBXBuildFile; fileRef = D0F849851FD0E8890090F10B /* filters.metal */; };
+		D0F849881FD0EF1E0090F10B /* CIWideFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F849871FD0EF1E0090F10B /* CIWideFilter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,8 @@
 		D0CFAA6E1FCB49540069A714 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D0CFAA701FCB49540069A714 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D0CFAA761FCB4F540069A714 /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
+		D0F849851FD0E8890090F10B /* filters.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = filters.metal; sourceTree = "<group>"; };
+		D0F849871FD0EF1E0090F10B /* CIWideFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIWideFilter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,11 +62,13 @@
 			children = (
 				D0CFAA641FCB49540069A714 /* AppDelegate.swift */,
 				D0CFAA661FCB49540069A714 /* ViewController.swift */,
+				D0F849871FD0EF1E0090F10B /* CIWideFilter.swift */,
 				D0CFAA761FCB4F540069A714 /* PreviewView.swift */,
 				D0CFAA681FCB49540069A714 /* Main.storyboard */,
 				D0CFAA6B1FCB49540069A714 /* Assets.xcassets */,
 				D0CFAA6D1FCB49540069A714 /* LaunchScreen.storyboard */,
 				D0CFAA701FCB49540069A714 /* Info.plist */,
+				D0F849851FD0E8890090F10B /* filters.metal */,
 			);
 			path = VideoCaptureTest;
 			sourceTree = "<group>";
@@ -142,6 +148,8 @@
 				D0CFAA671FCB49540069A714 /* ViewController.swift in Sources */,
 				D0CFAA651FCB49540069A714 /* AppDelegate.swift in Sources */,
 				D0CFAA771FCB4F540069A714 /* PreviewView.swift in Sources */,
+				D0F849861FD0E8890090F10B /* filters.metal in Sources */,
+				D0F849881FD0EF1E0090F10B /* CIWideFilter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -282,6 +290,9 @@
 				DEVELOPMENT_TEAM = T756J86QC9;
 				INFOPLIST_FILE = VideoCaptureTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTLLINKER_FLAGS = "-cikernel";
+				MTL_COMPILER_FLAGS = "-fcikernel";
+				MTL_LANGUAGE_REVISION = Metal20;
 				PRODUCT_BUNDLE_IDENTIFIER = "Peter-Edmonston.VideoCaptureTest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
@@ -297,6 +308,9 @@
 				DEVELOPMENT_TEAM = T756J86QC9;
 				INFOPLIST_FILE = VideoCaptureTest/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTLLINKER_FLAGS = "-cikernel";
+				MTL_COMPILER_FLAGS = "-fcikernel";
+				MTL_LANGUAGE_REVISION = Metal20;
 				PRODUCT_BUNDLE_IDENTIFIER = "Peter-Edmonston.VideoCaptureTest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
