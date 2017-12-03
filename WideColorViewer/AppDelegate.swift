@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  VideoCaptureTest
+//  WideColorViewer
 //
 //  Created by Peter Edmonston on 11/26/17.
 //  Copyright © 2017 com.peteredmonston. All rights reserved.

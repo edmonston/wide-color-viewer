@@ -1,6 +1,6 @@
 //
 //  ViewController.swift
-//  VideoCaptureTest
+//  WideColorViewer
 //
 //  Created by Peter Edmonston on 11/26/17.
 //  Copyright © 2017 com.peteredmonston. All rights reserved.
@@ -14,6 +14,7 @@ import UIKit
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
     @IBOutlet weak var previewView: UIImageView!
+    @IBOutlet weak var colorSpaceLabel: UILabel!
     
     // MARK: - Properties
     
@@ -117,8 +118,8 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             let colorSpace = device.activeColorSpace
             DispatchQueue.main.async {
                 switch colorSpace {
-                case .sRGB: self.showAlert(with: "Wide color is not active")
-                case .P3_D65: break
+                case .sRGB: self.colorSpaceLabel.text = "Warning: Wide color not active"
+                case .P3_D65: self.colorSpaceLabel.text = "Wide color is active"
                 }
             }
         }

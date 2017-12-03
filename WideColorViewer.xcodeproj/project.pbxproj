@@ -19,7 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		D0CFAA611FCB49540069A714 /* VideoCaptureTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoCaptureTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0CFAA611FCB49540069A714 /* WideColorViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WideColorViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0CFAA641FCB49540069A714 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D0CFAA661FCB49540069A714 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		D0CFAA691FCB49540069A714 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -46,7 +46,7 @@
 		D0CFAA581FCB49540069A714 = {
 			isa = PBXGroup;
 			children = (
-				D0CFAA631FCB49540069A714 /* VideoCaptureTest */,
+				D0CFAA631FCB49540069A714 /* WideColorViewer */,
 				D0CFAA621FCB49540069A714 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,12 +54,12 @@
 		D0CFAA621FCB49540069A714 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D0CFAA611FCB49540069A714 /* VideoCaptureTest.app */,
+				D0CFAA611FCB49540069A714 /* WideColorViewer.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D0CFAA631FCB49540069A714 /* VideoCaptureTest */ = {
+		D0CFAA631FCB49540069A714 /* WideColorViewer */ = {
 			isa = PBXGroup;
 			children = (
 				D0CFAA641FCB49540069A714 /* AppDelegate.swift */,
@@ -73,15 +73,15 @@
 				D0CFAA701FCB49540069A714 /* Info.plist */,
 				D0F849851FD0E8890090F10B /* filters.metal */,
 			);
-			path = VideoCaptureTest;
+			path = WideColorViewer;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D0CFAA601FCB49540069A714 /* VideoCaptureTest */ = {
+		D0CFAA601FCB49540069A714 /* WideColorViewer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D0CFAA731FCB49540069A714 /* Build configuration list for PBXNativeTarget "VideoCaptureTest" */;
+			buildConfigurationList = D0CFAA731FCB49540069A714 /* Build configuration list for PBXNativeTarget "WideColorViewer" */;
 			buildPhases = (
 				D0CFAA5D1FCB49540069A714 /* Sources */,
 				D0CFAA5E1FCB49540069A714 /* Frameworks */,
@@ -91,9 +91,9 @@
 			);
 			dependencies = (
 			);
-			name = VideoCaptureTest;
+			name = WideColorViewer;
 			productName = VideoCaptureTest;
-			productReference = D0CFAA611FCB49540069A714 /* VideoCaptureTest.app */;
+			productReference = D0CFAA611FCB49540069A714 /* WideColorViewer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -112,7 +112,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D0CFAA5C1FCB49540069A714 /* Build configuration list for PBXProject "VideoCaptureTest" */;
+			buildConfigurationList = D0CFAA5C1FCB49540069A714 /* Build configuration list for PBXProject "WideColorViewer" */;
 			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -125,7 +125,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D0CFAA601FCB49540069A714 /* VideoCaptureTest */,
+				D0CFAA601FCB49540069A714 /* WideColorViewer */,
 			);
 		};
 /* End PBXProject section */
@@ -292,7 +292,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = T756J86QC9;
-				INFOPLIST_FILE = VideoCaptureTest/Info.plist;
+				INFOPLIST_FILE = WideColorViewer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTLLINKER_FLAGS = "-cikernel";
 				MTL_COMPILER_FLAGS = "-fcikernel";
@@ -310,7 +310,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = T756J86QC9;
-				INFOPLIST_FILE = VideoCaptureTest/Info.plist;
+				INFOPLIST_FILE = WideColorViewer/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTLLINKER_FLAGS = "-cikernel";
 				MTL_COMPILER_FLAGS = "-fcikernel";
@@ -325,7 +325,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D0CFAA5C1FCB49540069A714 /* Build configuration list for PBXProject "VideoCaptureTest" */ = {
+		D0CFAA5C1FCB49540069A714 /* Build configuration list for PBXProject "WideColorViewer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D0CFAA711FCB49540069A714 /* Debug */,
@@ -334,7 +334,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D0CFAA731FCB49540069A714 /* Build configuration list for PBXNativeTarget "VideoCaptureTest" */ = {
+		D0CFAA731FCB49540069A714 /* Build configuration list for PBXNativeTarget "WideColorViewer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D0CFAA741FCB49540069A714 /* Debug */,
