@@ -13,25 +13,16 @@ import OpenGLES
 import UIKit
 
 class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
-    @IBOutlet weak var previewView: PreviewView!
-    @IBOutlet weak var miniPreviewView: UIImageView!
+    @IBOutlet weak var previewView: UIImageView!
     
-    private enum SessionSetupResult {
-        case success
-        case notAuthorized
-        case configurationFailed
-        
-        var errorMessage: String {
-            switch self {
-            case .success: return ""
-            case .notAuthorized: return "Need camera access"
-            case .configurationFailed: return "Camera setup failed"
-            }
-        }
-    }
+    // MARK: - Properties
+    
+    // MARK: Camera
     
     private var defaultDevice: AVCaptureDevice? {
-        let session = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .builtInDualCamera], mediaType: .video, position: .back)
+        let session = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .builtInDualCamera],
+                                                       mediaType: .video,
+                                                       position: .back)
         return session.devices.first
     }
     
@@ -43,21 +34,36 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     private var setupResult = SessionSetupResult.success
     
+    // MARK: Core Image
+    
+    private lazy var wideColorFilter: CIFilter = CIFilter(name: "WideColor")!
+    
+    private lazy var ciContext: CIContext = {
+        let wideColorSpace = CGColorSpace(name: CGColorSpace.extendedSRGB)!
+        let floatPixelFormat = NSNumber(value: kCIFormatRGBAh)
+        var options = [String: Any]()
+        options[kCIContextWorkingColorSpace] = wideColorSpace
+        options[kCIContextWorkingFormat] = floatPixelFormat
+        return CIContext(options: options)
+    }()
+    
+    // MARK: Queues
+    
     private let sessionQueue = DispatchQueue(label: "com.peteredmonston.session_queue")
     private let bufferQueue = DispatchQueue(label: "com.peteredmonston.buffer_queue")
     private let renderQueue = DispatchQueue(label: "com.peteredmonston.render_queue")
     
+    // MARK: - Methods
+    
+    // MARK: View Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-    //    previewView.session = session
-        guard let url = Bundle.main.url(forResource: "default", withExtension: "metallib"),
-            let data = try? Data(contentsOf: url),
-            let kernel = try? CIKernel(functionName: "wide_color_kernel",
-                                       fromMetalLibraryData: data,
-                                       outputPixelFormat: kCIFormatRGBAh) else {
-                fatalError("Unable to get metallib and create kernel")
+        do {
+            try WideColorFilter.setup()
+        } catch {
+            print("Filter creation failed.")
         }
-        WideColorFilter.setup(with: kernel)
         requestAuthorizationIfNeeded()
         sessionQueue.async {
             self.setupSession()
@@ -66,11 +72,13 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        guard setupResult == .success else {
-            showAlert(with: setupResult.errorMessage)
-            return
-        }
         sessionQueue.async {
+            guard self.setupResult == .success else {
+                DispatchQueue.main.async {
+                    self.showAlert(with: self.setupResult.errorMessage)
+                }
+                return
+            }
             self.startSession()
         }
     }
@@ -83,34 +91,40 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         }
     }
     
+    // MARK: Private
+    
     private func setupSession() {
+        guard setupResult == .success else {
+            return
+        }
         guard let device = defaultDevice else {
             fatalError("No device found")
         }
         
         do {
             let input = try AVCaptureDeviceInput(device: device)
-            session.beginConfiguration()
-            if (session.canAddInput(input)) {
-                session.addInput(input)
+            
+            session.configure { session in
+                session.addInputIfPossible(input)
+                let output = AVCaptureVideoDataOutput()
+                output.alwaysDiscardsLateVideoFrames = true
+                output.setSampleBufferDelegate(self, queue: self.bufferQueue)
+                session.addOutputIfPossible(output)
+                output.connections.first?.videoOrientation = .portrait
+                session.addOutputIfPossible(AVCapturePhotoOutput())
             }
             
-            let output = AVCaptureVideoDataOutput()
-            output.alwaysDiscardsLateVideoFrames = true
-            output.setSampleBufferDelegate(self, queue: self.bufferQueue)
-            if (session.canAddOutput(output)) {
-                session.addOutput(output)
+            let colorSpace = device.activeColorSpace
+            DispatchQueue.main.async {
+                switch colorSpace {
+                case .sRGB: self.showAlert(with: "Wide color is not active")
+                case .P3_D65: break
+                }
             }
-            output.connections.first?.videoOrientation = .portrait
-            
-            let photoOutput = AVCapturePhotoOutput()
-            if session.canAddOutput(photoOutput) {
-                session.addOutput(photoOutput)
-            }
-            session.commitConfiguration()
         }
         catch let error as NSError {
             NSLog("\(error), \(error.localizedDescription)")
+            setupResult = .configurationFailed
         }
     }
     
@@ -143,27 +157,20 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         present(alert, animated: true)
     }
     
-    
-    let wideColorFilter: CIFilter = WideColorFilter()
-    let ciContext: CIContext = {
-        let colorSpace = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)!
-        let pixelFormat = NSNumber(value: kCIFormatRGBAh)
-        let options: [String: Any] = [kCIContextWorkingColorSpace: colorSpace, kCIContextWorkingFormat: pixelFormat]
-        return CIContext(options: options)
-    }()
+    // MARK: AVCaptureVideoDataOutputSampleBufferDelegate
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        
         guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         wideColorFilter.setValue(CIImage(cvPixelBuffer: imageBuffer), forKey: kCIInputImageKey)
         guard let output = wideColorFilter.outputImage else { return }
         renderQueue.async {
-            guard let filteredCGImage = self.ciContext.createCGImage(output,
-                                                               from: output.extent,
-                                                               format: kCIFormatRGBAh,
-                                                               colorSpace: CGColorSpace(name: CGColorSpace.extendedSRGB)) else { return }
+            let colorSpace = CGColorSpace(name: CGColorSpace.extendedSRGB)
+            guard let cgImage = self.ciContext.createCGImage(output,
+                                                             from: output.extent,
+                                                             format: kCIFormatRGBAh,
+                                                             colorSpace: colorSpace) else { return }
             DispatchQueue.main.async {
-                self.miniPreviewView.image = UIImage(cgImage: filteredCGImage)
+                self.previewView.image = UIImage(cgImage: cgImage)
             }
         }
     }

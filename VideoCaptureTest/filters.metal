@@ -23,10 +23,10 @@ extern "C" {
                 return color;
             } else {
                 // Otherwise grayscale the non-wide gamut colors.
-                float luminance = dot(float3(0.3, 0.59, 0.11), color.rgb);
-                return float4(luminance, luminance, luminance, 1.);
+                float3 grayscale = float3(0.3, 0.59, 0.11);
+                float luminance = dot(grayscale, color.rgb);
+                return float4(float3(luminance), 1.);
             }
         }
     }
 }
-
