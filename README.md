@@ -8,5 +8,7 @@ When you run this app on an iPhone device capable of capturing color in the Disp
 
 It won't work on the simulator, so run it on a device!
 
+(This hasn't been optimized for performance, but it runs well on an iPhone X!)
+
 
 
