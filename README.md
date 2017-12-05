@@ -1,5 +1,6 @@
 # Wide Color Viewer
 
+![wide color images](wide-color.png)
 
 This is a test iOS app for identifying wide color in a live camera feed. [See this blog post](https://medium.com/@heypete/adventures-in-wide-color-an-ios-exploration-2934669e0cc2) for more context.
 
